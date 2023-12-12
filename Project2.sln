@@ -1,31 +1,272 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.7.34221.43
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Project2", "Project2\Project2.vcxproj", "{A99F9C66-A92C-4AF8-9E2E-0E7CC21EFB09}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A99F9C66-A92C-4AF8-9E2E-0E7CC21EFB09}.Debug|x64.ActiveCfg = Debug|x64
-		{A99F9C66-A92C-4AF8-9E2E-0E7CC21EFB09}.Debug|x64.Build.0 = Debug|x64
-		{A99F9C66-A92C-4AF8-9E2E-0E7CC21EFB09}.Debug|x86.ActiveCfg = Debug|Win32
-		{A99F9C66-A92C-4AF8-9E2E-0E7CC21EFB09}.Debug|x86.Build.0 = Debug|Win32
-		{A99F9C66-A92C-4AF8-9E2E-0E7CC21EFB09}.Release|x64.ActiveCfg = Release|x64
-		{A99F9C66-A92C-4AF8-9E2E-0E7CC21EFB09}.Release|x64.Build.0 = Release|x64
-		{A99F9C66-A92C-4AF8-9E2E-0E7CC21EFB09}.Release|x86.ActiveCfg = Release|Win32
-		{A99F9C66-A92C-4AF8-9E2E-0E7CC21EFB09}.Release|x86.Build.0 = Release|Win32
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {BFEF40E9-CF05-4EB2-97B8-833CE25E6DB9}
-	EndGlobalSection
-EndGlobal
+#include<iostream>
+#include<windows.h>
+#include<ctime>
+#include<fstream>
+#include<string>
+using namespace std;
+
+char candy = 219;      // ASCII value of a solid block 219 to represent the candy
+
+
+void Color(int color)
+{
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+	//GET standard output, which is typically the console window where text is displayed.
+	//Set Sets the attributes of characters written to the console screen. In this context, it's used to change the text color and background color.
+}
+
+int ColourGenerator() {
+	int Colors[5] = { 7,6,4,2,3 };
+	int random;
+	srand(time(0) + rand());
+	random = Colors[rand() % 5];
+	return random;
+}
+
+void update(int grid[8][8], int score) {
+	system("CLS");
+	int number = 1;
+	char border = '-';
+	Color(7);
+	for (int i = 0; i < 65; i++)
+	{
+		cout << border; //first row border
+	}
+	cout << endl << border << "								" << border << endl;
+	//grid
+	for (int i = 0; i < 8; i++) {
+		cout << border << "  ";
+		for (int j = 0; j < 8; j++) {
+			Color(grid[i][j]);
+
+			cout << candy << number++ << "	";
+
+			Color(7);
+			if (i == 1 && j == 7) {
+				cout << "	-------------";
+			}
+			if (i == 2 && j == 7) {
+				Color(7);
+				cout << "	| SCORE : " << score << " |";
+
+			}
+			if (i == 3 && j == 7) {
+				cout << "	-------------";
+			}
+			if (i == 6 && j == 7) {
+				cout << "	* * Enter -1 to exit ! * *";
+			}
+		}
+		Color(7);
+
+
+		cout << endl << border << "								" << border << endl << border << "								" << border << endl;
+	}
+	for (int i = 0; i < 65; i++) {
+		cout << border; //last row border
+	}
+	cout << endl << endl;
+}
+
+int check(int grid[8][8], int score) {
+	int temp, counter = 0;
+	//Generating new candies if 3 Colors are same
+	//FOR HORIZONTAL
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			if (grid[i][j] == grid[i][j + 1] && grid[i][j + 1] == grid[i][j + 2]) {
+				temp = ColourGenerator();
+				grid[i][j] = temp;
+				temp = ColourGenerator();
+				grid[i][j + 1] = temp;
+				temp = ColourGenerator();
+				grid[i][j + 2] = temp;
+				counter++;
+			}
+			//FOR VERTICAL
+			if (grid[i][j] == grid[i + 1][j] && grid[i + 1][j] == grid[i + 2][j]) {
+				temp = ColourGenerator();
+				grid[i][j] = temp;
+				temp = ColourGenerator();
+				grid[i + 1][j] = temp;
+				temp = ColourGenerator();
+				grid[i + 2][j] = temp;
+				counter++;
+			}
+			// vertical 4 candies
+			if (grid[i][j] == grid[i + 1][j] && grid[i + 1][j] == grid[i + 2][j] && grid[i][j + 2] == grid[i + 3][j])
+			{
+
+				for (int l = 0; l < 8; l++)
+				{
+					temp = ColourGenerator();
+					grid[l][j] = temp;
+				}
+				counter++;
+			}
+			// Horizontal 4 candies
+			if (grid[i][j] == grid[i][j + 1] && grid[i][j + 1] == grid[i][j + 2] && grid[i][j + 2] == grid[i][j + 3]) {
+				for (int l = 0; l < 8; l++)
+				{
+					temp = ColourGenerator();
+					grid[i][l] = temp;
+				}
+				counter++;
+			}
+			// FOR FIVE CANDIES
+			if (grid[i][j] == grid[i][j + 1] && grid[i][j + 1] == grid[i][j + 2] && grid[i][j + 2] == grid[i][j + 3] && grid[i][j + 3] == grid[i][j + 4]) {
+				int temp2 = grid[i][j];
+
+				for (int x = 0; x < 8; x++) {
+					for (int y = 0; y < 8; y++) {
+						if (grid[x][y] == temp2) {
+							temp = ColourGenerator();
+							grid[x][y] = temp;
+						}
+					}
+				}
+				counter++;
+			}
+
+		}
+	}
+	update(grid, score);
+	return counter;
+}
+
+int RowNum(int num)
+{
+	return (num / 8);
+}
+int ColNum(int num)
+{
+	return ((num - (RowNum(num) * 8)) - 1);
+}
+
+
+
+void instructions()
+{
+	Color(7);
+	cout << "			-----------------------------------------------------" << endl;
+	cout << "			|		"; Color(4); cout << candy; Color(7); cout << "C A N D Y   C R U S H"; Color(4); cout << candy; Color(7); cout << "		    | " << endl;
+	cout << "			-----------------------------------------------------" << endl << endl << endl;
+	cout << "1. You have to combine 3 or 4 same colored jellies to destroy them." << endl;
+	cout << "2. Numbers are allocated to each cell." << endl;
+	cout << "3. Enter 2 numbers to swap them." << endl;
+	cout << "4. Score 100 to Win!" << endl;
+	cout << "5. Enjoy the game !" << endl;
+	Sleep(3000);
+}
+
+int main()
+{
+	int score = 0;
+	int num1 = 0;
+	int num2 = 0;
+	ofstream myfile("candycrushscore.txt");
+	system("CLS");
+	instructions();
+	cout << "Enter your name" << endl;
+	string name;
+	cin >> name;
+	myfile << name << endl;
+	//INITIALZING CANDIES
+	int temp, number = 1;
+	int grid[8][8];
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < 8; j++)
+		{
+			temp = ColourGenerator();
+			grid[i][j] = temp;
+			Color(temp);
+			cout << candy << number++ << "     ";
+		}
+		cout << endl << endl;
+	}
+
+	check(grid, score);
+
+	//Taking User Input for swapping
+	int T, T1;
+
+	while (score < 100) {
+
+
+		cout << "Enter Numbers of cells to swap: " << endl;
+		cout << "Locations : "; cin >> num1;
+		if (num1 == -1)
+		{
+			break;
+		}
+		cin >> num2;
+		if (num2 == -1)
+		{
+			break;
+		}
+		if (num1 >= 1 && num1 <= 64 && num2 >= 1 && num2 <= 64 && num1 != num2 && (((num1 - 8) == num2) || ((num1 + 1) == num2) || ((num1 + 8) == num2) || ((num1 - 1) == num2)))
+		{
+			T = grid[RowNum(num1)][ColNum(num1)];
+			grid[RowNum(num1)][ColNum(num1)] = grid[RowNum(num2)][ColNum(num2)];
+			grid[RowNum(num2)][ColNum(num2)] = T;
+			//swap(grid[RowNum(num1)][ColNum(num1)], grid[RowNum(num2)][ColNum(num2)]);
+
+			if (check(grid, score) == 0) //counter value 
+			{
+				//swap(grid[RowNum(num1)][ColNum(num1)], grid[RowNum(num2)][ColNum(num2)]);
+				T1 = grid[RowNum(num1)][ColNum(num1)];
+				grid[RowNum(num1)][ColNum(num1)] = grid[RowNum(num2)][ColNum(num2)];
+				grid[RowNum(num2)][ColNum(num2)] = T1;
+				cout << "Incorrect Combination!\n";
+			}
+			else
+			{
+				score = score + 10;
+				myfile << score << endl;
+				Beep(500, 300); // when you make a match beep sound
+				check(grid, score);
+			}
+
+		}
+		else {
+			system("CLS");
+			cout << "The Numbers you entered are incorrect!" << endl;
+			cout << "1) Both Numbers should not be equal." << endl;
+			cout << "2) Both Numbers should be between 1 - 64." << endl;
+			cout << "3) Both Numbers should be next to each other." << endl << endl;
+			cout << "Try Again! ";
+			Sleep(2000);
+			system("CLS");
+			update(grid, score);
+		}
+	}
+	if (score >= 100) {
+		system("CLS");
+		Color(4);
+		cout << "_________________________________________________________\n";
+		cout << "\n\n\n\n	"; cout << candy; cout << " C O N G R A T U L A T I O N S! "; Color(4); cout << candy; cout << "\n\n		You Won!\n\n\n\n\n";
+		cout << "_________________________________________________________\n\n\n\n\n\n";
+		string mytext;
+		mytext = "Congratulations";
+		myfile << mytext;
+		Color(7);
+	}
+	else
+	{
+		system("CLS");
+		cout << "_________________________________________________________\n";
+		cout << "\n\n\n\n	G A M E   O V E R! \n\n      Better Luck Next Time!\n\n\n\n\n";
+		cout << "_________________________________________________________\n\n\n\n\n\n";
+		string mytext;
+		mytext = "G A M E   O V E R! Better Luck Next Time";
+		myfile << mytext;
+	}
+	return 0;
+
+
+
+
+}
